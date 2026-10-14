@@ -10,6 +10,7 @@ const path  = require('path');
 const API     = 'https://graph.facebook.com/v25.0/';
 const ACCOUNT = 'act_2257391261025407';
 const MIN_IMP = 300;
+const OBJETIVOS_VENDAS = ['OUTCOME_SALES', 'CONVERSIONS'];
 
 function lerToken() {
   if (process.env.META_ACCESS_TOKEN) return process.env.META_ACCESS_TOKEN;
@@ -46,7 +47,7 @@ const acao  = (arr, tipo) => num((arr || []).find(a => a.action_type === tipo)?.
 const total = arr => num((arr || [])[0]?.value);
 
 const CAMPOS = [
-  'ad_id', 'ad_name', 'campaign_name', 'impressions', 'reach', 'inline_link_clicks', 'actions',
+  'ad_id', 'ad_name', 'campaign_name', 'objective', 'impressions', 'reach', 'inline_link_clicks', 'actions',
   'video_play_actions', 'video_thruplay_watched_actions', 'video_avg_time_watched_actions',
   'video_p25_watched_actions', 'video_p50_watched_actions', 'video_p75_watched_actions',
   'video_p100_watched_actions', 'video_play_curve_actions',
@@ -66,7 +67,8 @@ async function insights(dias) {
     { field: 'impressions', operator: 'GREATER_THAN', value: MIN_IMP },
   ]));
   const range = encodeURIComponent(JSON.stringify({ since: fmt(de), until: fmt(ate) }));
-  return getAll(`${ACCOUNT}/insights?level=ad&limit=200&time_range=${range}&filtering=${filtro}&fields=${CAMPOS}`);
+  const linhas = await getAll(`${ACCOUNT}/insights?level=ad&limit=200&time_range=${range}&filtering=${filtro}&fields=${CAMPOS}`);
+  return linhas.filter(l => OBJETIVOS_VENDAS.includes(l.objective));
 }
 
 async function detalhesDosAnuncios(adIds) {
