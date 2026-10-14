@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel de Criativos Terra SP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra de controles fixa no topo, faixa de resumo, ranking em lista à esquerda e "sala de edição" (curva detalhada) à direita; empilha no celular */
+:root{
+  --bg:#f4f2f0; --surface:#ffffff; --surface-2:#faf8f6; --ink:#1b1716; --muted:#6c6461; --line:#e4dfdb;
+  --accent:#b3202e; --accent-soft:#f8e4e5; --gold:#a8771a;
+  --good:#1e7a4c; --good-soft:#e2f3ea; --mid:#a86400; --mid-soft:#fbefdc; --bad:#c0392b; --bad-soft:#fbe6e3;
+  --curve:#b3202e; --curve-fill:rgba(179,32,46,.12); --grid:#ece7e3;
+  --f-display:"Bricolage Grotesque","Arial Narrow",Arial,sans-serif;
+  --f-body:"Figtree","Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141112; --surface:#1d191a; --surface-2:#231e1f; --ink:#f2ecea; --muted:#a69c99; --line:#332c2d;
+  --accent:#ff5a67; --accent-soft:#3a1c20; --gold:#e8b44f;
+  --good:#5fd39a; --good-soft:#163024; --mid:#f0b357; --mid-soft:#382a14; --bad:#ff7b6b; --bad-soft:#3a1d1a;
+  --curve:#ff5a67; --curve-fill:rgba(255,90,103,.16); --grid:#2b2526; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141112; --surface:#1d191a; --surface-2:#231e1f; --ink:#f2ecea; --muted:#a69c99; --line:#332c2d;
+  --accent:#ff5a67; --accent-soft:#3a1c20; --gold:#e8b44f;
+  --good:#5fd39a; --good-soft:#163024; --mid:#f0b357; --mid-soft:#382a14; --bad:#ff7b6b; --bad-soft:#3a1d1a;
+  --curve:#ff5a67; --curve-fill:rgba(255,90,103,.16); --grid:#2b2526; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:12px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:-.01em;margin:0;line-height:1.1}
+.brand h1 b{color:var(--accent)}
+.stamp{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.stamp i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:middle}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-weight:600;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 10px;font-size:14px;max-width:260px;min-width:0}
+@media (max-width:600px){.controls{width:100%}.controls select{flex:1 1 140px;max-width:none}}
+.summary,.layout,.list,.row,.detail{max-width:100%}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;cursor:pointer;padding:6px 4px}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+main{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:20px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px}
+@media (max-width:520px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary .sum:last-child{grid-column:1/-1}.sum .v{font-size:24px}}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sum .v{font-family:var(--f-display);font-weight:800;font-size:28px;font-variant-numeric:tabular-nums;line-height:1.1}
+.sum .l{font-size:13px;color:var(--muted)}
+.sum .best{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+.list{display:flex;flex-direction:column;gap:8px;min-width:0}
+.list-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.list-head h2,.detail h2{font-family:var(--f-display);font-weight:800;font-size:18px;margin:0}
+.count{font-size:13px;color:var(--muted)}
+.row{display:grid;grid-template-columns:28px 54px minmax(0,1fr) 112px;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;width:100%}
+.row:hover{border-color:var(--muted)}
+.row[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.rank{font-family:var(--f-mono);font-size:13px;color:var(--muted);text-align:center}
+.thumb{width:54px;height:72px;border-radius:6px;object-fit:cover;background:var(--surface-2);display:block}
+.meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.meta .n{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-mono);font-size:11.5px;padding:2px 7px;border-radius:99px;white-space:nowrap;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.mid{background:var(--mid-soft);color:var(--mid);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.live{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.spark{width:112px;height:44px;display:block}
+@media (max-width:520px){.row{grid-template-columns:22px 44px minmax(0,1fr)}.row .spark{display:none}.thumb{width:44px;height:58px}}
+.detail{position:sticky;top:96px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:900px){.detail{position:static}}
+.d-head{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start}
+.d-head img{width:96px;height:128px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
+.d-head .t{display:flex;flex-direction:column;gap:6px;min-width:0}
+.d-head .show{font-size:13px;color:var(--muted)}
+.d-head .name{font-family:var(--f-display);font-weight:800;font-size:20px;line-height:1.15;overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface-2);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi.good .v{color:var(--good)} .kpi.mid .v{color:var(--mid)} .kpi.bad .v{color:var(--bad)}
+.curve-box{display:flex;flex-direction:column;gap:6px}
+.curve-box h3,.tips h3,.quart h3{font-size:14px;margin:0;font-weight:700}
+.curve-box svg{width:100%;height:auto;display:block}
+.curve-box .cap{font-size:12.5px;color:var(--muted)}
+.quart{display:flex;flex-direction:column;gap:8px}
+.qbar{display:grid;grid-template-columns:96px minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:13px}
+.qbar .track{height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.qbar .fill{height:100%;background:var(--curve);border-radius:99px}
+.qbar .pv{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.tips{display:flex;flex-direction:column;gap:8px;background:var(--surface-2);border-radius:10px;padding:12px 14px}
+.tips ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.glossary{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.glossary h2{font-family:var(--f-display);font-weight:800;font-size:18px;margin:0}
+.gl{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 20px}
+.gl div{display:flex;flex-direction:column;gap:2px}
+.gl b{font-size:14px}
+.gl span{font-size:13.5px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+.ref{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <div class="brand">
+    <h1>Criativos <b>Terra SP</b></h1>
+    <span class="stamp" id="stamp">Carregando dados…</span>
+  </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Período">
+      <button type="button" id="p7" aria-pressed="true">7 dias</button>
+      <button type="button" id="p30" aria-pressed="false">30 dias</button>
+    </div>
+    <select id="show" aria-label="Filtrar por show"><option value="">Todos os shows</option></select>
+    <select id="sort" aria-label="Ordenar por">
+      <option value="atencao">Ordenar: atenção inicial</option>
+      <option value="retencao">Ordenar: retenção</option>
+      <option value="tempoMedio">Ordenar: tempo médio</option>
+      <option value="ctr">Ordenar: cliques (CTR)</option>
+      <option value="impressoes">Ordenar: impressões</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="ativos"> Só no ar</label>
+  </div>
+</div></div>
+
+<main>
+  <section class="summary" id="summary" aria-label="Resumo"></section>
+
+  <div class="layout">
+    <section class="list" aria-label="Ranking de criativos">
+      <div class="list-head"><h2>Ranking</h2><span class="count" id="count"></span></div>
+      <div id="rows" class="list"></div>
+    </section>
+    <aside class="detail" id="detail" aria-live="polite">
+      <div class="empty">Escolha um criativo no ranking para ver a curva de retenção segundo a segundo.</div>
+    </aside>
+  </div>
+
+  <section class="glossary">
+    <h2>Como ler os números</h2>
+    <div class="gl">
+      <div><b>Atenção inicial</b><span>De cada 100 pessoas que viram o anúncio, quantas assistiram pelo menos 3 segundos. Mede o gancho. Bom: 25% ou mais.</span></div>
+      <div><b>Retenção</b><span>Das pessoas que passaram dos 3 segundos, quantas assistiram até o fim (ou 15s). Mede se o meio do vídeo prende. Bom: 25% ou mais.</span></div>
+      <div><b>Ponto de fuga</b><span>O segundo em que menos da metade das pessoas continua assistindo. Quanto mais tarde, melhor.</span></div>
+      <div><b>Curva de retenção</b><span>Quantos % das pessoas ainda estão assistindo em cada segundo do vídeo. Uma queda brusca mostra o momento exato a corrigir na edição.</span></div>
+      <div><b>CTR</b><span>De cada 100 pessoas que viram, quantas clicaram no link para comprar. Bom: 1,5% ou mais.</span></div>
+      <div><b>Cores</b><span>Verde está bom, amarelo dá pra melhorar, vermelho precisa mudar. Referência: histórico de criativos de shows e eventos.</span></div>
+    </div>
+    <span class="ref">Dados do Meta Ads, somente campanhas [TERRA] com mais de 300 impressões. Atualiza sozinho a cada hora.</span>
+  </section>
+</main>
+
+<script>
+const LIM = { atencao:[15,25], retencao:[15,25], ctr:[1,1.5], tempoMedio:[2,4] };
+const nivel = (k,v) => v >= LIM[k][1] ? 'good' : v >= LIM[k][0] ? 'mid' : 'bad';
+const fmt = n => n.toLocaleString('pt-BR');
+const pct = n => n.toLocaleString('pt-BR',{maximumFractionDigits:1}) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ROT = ['0s','1s','2s','3s','4s','5s','6s','7s','8s','9s','10s','11s','12s','13s','14s','15s','20s','25s','30s','40s','50s','60s+'];
+
+const st = { dados:null, janela:'7', show:'', sort:'atencao', ativos:false, sel:null };
+try { const s = JSON.parse(localStorage.getItem('painel-criativos')||'{}'); Object.assign(st, {janela:s.janela||'7', sort:s.sort||'atencao', ativos:!!s.ativos}); } catch(e) {}
+const salvar = () => { try { localStorage.setItem('painel-criativos', JSON.stringify({janela:st.janela, sort:st.sort, ativos:st.ativos})); } catch(e) {} };
+
+function pontosDaCurva(c, dur) {
+  const ultimo = dur ? Math.min(c.length-1, dur <= 15 ? dur : 15 + Math.ceil((dur-15)/5)) : c.length-1;
+  let fim = ultimo;
+  while (fim > 1 && !c[fim] && !dur) fim--;
+  return c.slice(0, fim+1);
+}
+
+function spark(c, dur) {
+  const p = pontosDaCurva(c, dur); if (p.length < 2) return '';
+  const w=112,h=44, x=i=>i*(w-4)/(p.length-1)+2, y=v=>h-3-(v/100)*(h-6);
+  const d = p.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d} L${x(p.length-1)} ${h-3} L2 ${h-3}Z" fill="var(--curve-fill)"/><path d="${d}" fill="none" stroke="var(--curve)" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+}
+
+function curvaGrande(c, dur, fuga) {
+  const p = pontosDaCurva(c, dur); if (p.length < 2) return '<p class="cap">Sem dados de curva para este vídeo.</p>';
+  const W=560,H=240,L=40,R=12,T=14,B=30, iw=W-L-R, ih=H-T-B;
+  const x=i=>L+i*iw/(p.length-1), y=v=>T+ih-(v/100)*ih;
+  let g='';
+  [0,25,50,75,100].forEach(v=>{ g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${v}%</text>`; });
+  const passo = p.length > 12 ? 2 : 1;
+  p.forEach((_,i)=>{ if((i%passo===0&&i!==p.length-2)||i===p.length-1) g+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${ROT[i]}</text>`; });
+  const d = p.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  let marca='';
+  if (fuga && fuga < p.length) marca = `<line x1="${x(fuga)}" x2="${x(fuga)}" y1="${T}" y2="${T+ih}" stroke="var(--gold)" stroke-dasharray="4 4"/><text x="${Math.min(x(fuga)+6,W-R-90)}" y="${T+12}" font-size="11.5" fill="var(--gold)" font-weight="600" font-family="Figtree,sans-serif">ponto de fuga: ${ROT[fuga]}</text>`;
+  const pts = p.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="var(--surface)" stroke="var(--curve)" stroke-width="1.5"><title>${ROT[i]}: ${pct(v)} ainda assistindo</title></circle>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Curva de retenção: ${p.map((v,i)=>ROT[i]+' '+v+'%').join(', ')}">${g}<path d="${d} L${x(p.length-1)} ${T+ih} L${L} ${T+ih}Z" fill="var(--curve-fill)"/><path d="${d}" fill="none" stroke="var(--curve)" stroke-width="2.5" stroke-linejoin="round"/>${marca}${pts}</svg>`;
+}
+
+function dicas(c) {
+  const t = [];
+  const queda1 = c.curva.length > 1 ? 100 - c.curva[1] : 0;
+  if (queda1 >= 50) t.push(`${Math.round(queda1)}% das pessoas saem no primeiro segundo. O primeiro quadro não está segurando: comece com movimento, o rosto do artista cantando ao vivo ou uma frase forte escrita na tela.`);
+  if (c.atencao >= 25 && c.retencao < 25) t.push(`O gancho funciona (${pct(c.atencao)} param para ver), mas o meio do vídeo perde gente. Corte as partes paradas, acelere o ritmo e mostre a informação principal (show e data) mais cedo.`);
+  if (c.atencao >= 25 && c.ctr >= 1.5) t.push('Abertura e chamada para compra estão funcionando. Use este vídeo como modelo: faça variações com o mesmo começo em outros shows.');
+  if (c.retencao >= 25 && c.ctr < 1) t.push('As pessoas assistem, mas não clicam. Deixe o chamado para comprar mais claro e mais cedo (ex.: "Ingressos no link", "Últimos lotes").');
+  if (c.atencao < 15 && queda1 < 50) t.push('Atenção inicial baixa. Teste outra abertura: um trecho de show lotado ou uma pergunta direta para o público.');
+  if (c.duracao && c.duracao > 20 && c.retencao < 25) t.push(`O vídeo tem ${c.duracao}s. Teste uma versão de até 15s: vídeos curtos costumam ser vistos até o fim com mais frequência.`);
+  if (c.atencao >= 25 && c.retencao >= 25 && c.ctr >= 1.5) t.push('Criativo forte nas três frentes. Vale fazer variações dele (outro texto na tela, outro trecho do mesmo show) em vez de começar do zero.');
+  if (!t.length) t.push('Desempenho na média. Compare a curva com os criativos do topo do ranking para ver em qual segundo eles seguram melhor.');
+  return t;
+}
+
+function lista() {
+  const j = st.dados.janelas[st.janela] || [];
+  return j.filter(c => (!st.show || c.show === st.show) && (!st.ativos || c.ativo))
+          .sort((a,b) => b[st.sort] - a[st.sort] || b.impressoes - a.impressoes);
+}
+
+function render() {
+  const L = lista();
+  document.getElementById('count').textContent = L.length + (L.length === 1 ? ' criativo' : ' criativos');
+  const media = k => { const imp = L.reduce((a,c)=>a+c.impressoes,0); return imp ? L.reduce((a,c)=>a+c[k]*c.impressoes,0)/imp : 0; };
+  const top = [...L].sort((a,b)=>b.atencao-a.atencao)[0];
+  document.getElementById('summary').innerHTML = L.length ? `
+    <div class="sum"><span class="v">${L.length}</span><span class="l">criativos com vídeo</span></div>
+    <div class="sum"><span class="v" style="color:var(--${nivel('atencao',media('atencao'))})">${pct(media('atencao'))}</span><span class="l">atenção inicial média</span></div>
+    <div class="sum"><span class="v" style="color:var(--${nivel('retencao',media('retencao'))})">${pct(media('retencao'))}</span><span class="l">retenção média</span></div>
+    <div class="sum"><span class="v">${fmt(L.reduce((a,c)=>a+c.impressoes,0))}</span><span class="l">impressões</span></div>
+    <div class="sum"><span class="l">Melhor gancho</span><span class="best" title="${esc(top.nome)}">${esc(top.nome)}</span><span class="l">${pct(top.atencao)} · ${esc(top.show)}</span></div>` : '';
+  const rows = document.getElementById('rows');
+  if (!L.length) { rows.innerHTML = '<div class="empty">Nenhum criativo com esses filtros. Tente "30 dias" ou desmarque "Só no ar".</div>'; renderDetalhe(null); return; }
+  if (!L.find(c => c.video_id+c.show === st.sel)) st.sel = L[0].video_id + L[0].show;
+  rows.innerHTML = L.map((c,i) => `
+    <button type="button" class="row" data-k="${esc(c.video_id+c.show)}" aria-current="${c.video_id+c.show===st.sel}">
+      <span class="rank">${i+1}</span>
+      <img class="thumb" src="${esc(c.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">
+      <span class="meta">
+        <span class="n">${esc(c.nome)}</span>
+        <span class="s">${esc(c.show)}</span>
+        <span class="chips">
+          ${c.ativo ? '<span class="chip live">no ar</span>' : ''}
+          <span class="chip ${nivel('atencao',c.atencao)}">atenção ${pct(c.atencao)}</span>
+          <span class="chip ${nivel('retencao',c.retencao)}">retenção ${pct(c.retencao)}</span>
+          <span class="chip">${c.pontoDeFuga ? 'fuga '+ROT[c.pontoDeFuga] : 'segura +15s'}</span>
+        </span>
+      </span>
+      ${spark(c.curva, c.duracao)}
+    </button>`).join('');
+  rows.querySelectorAll('.row').forEach(b => b.addEventListener('click', () => {
+    st.sel = b.dataset.k;
+    rows.querySelectorAll('.row').forEach(r => r.setAttribute('aria-current', r === b));
+    renderDetalhe(L.find(c => c.video_id+c.show === st.sel));
+    if (window.innerWidth <= 900) document.getElementById('detail').scrollIntoView({behavior:'smooth', block:'start'});
+  }));
+  renderDetalhe(L.find(c => c.video_id+c.show === st.sel));
+}
+
+function renderDetalhe(c) {
+  const el = document.getElementById('detail');
+  if (!c) { el.innerHTML = '<div class="empty">Escolha um criativo no ranking para ver a curva de retenção segundo a segundo.</div>'; return; }
+  const q = c.quartis;
+  el.innerHTML = `
+    <div class="d-head">
+      <img src="${esc(c.thumb)}" alt="Miniatura do vídeo ${esc(c.nome)}" referrerpolicy="no-referrer">
+      <div class="t">
+        <span class="show">${esc(c.show)}</span>
+        <span class="name">${esc(c.nome)}</span>
+        <span class="chips">${c.ativo ? '<span class="chip live">no ar</span>' : '<span class="chip">pausado</span>'}${c.duracao ? `<span class="chip">${c.duracao}s de vídeo</span>` : ''}<span class="chip">${fmt(c.impressoes)} impressões</span><span class="chip">${c.anuncios} ${c.anuncios>1?'anúncios':'anúncio'}</span></span>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi ${nivel('atencao',c.atencao)}"><span class="v">${pct(c.atencao)}</span><span class="l">atenção inicial</span></div>
+      <div class="kpi ${nivel('retencao',c.retencao)}"><span class="v">${pct(c.retencao)}</span><span class="l">retenção</span></div>
+      <div class="kpi ${nivel('tempoMedio',c.tempoMedio)}"><span class="v">${c.tempoMedio.toLocaleString('pt-BR')}s</span><span class="l">tempo médio</span></div>
+      <div class="kpi ${nivel('ctr',c.ctr)}"><span class="v">${pct(c.ctr)}</span><span class="l">cliques (CTR)</span></div>
+    </div>
+    <div class="curve-box">
+      <h3>Curva de retenção</h3>
+      ${curvaGrande(c.curva, c.duracao, c.pontoDeFuga)}
+      <span class="cap">Quantos % das pessoas ainda estão assistindo em cada segundo. Passe o mouse ou toque nos pontos para ver o valor.</span>
+    </div>
+    <div class="quart">
+      <h3>Até onde as pessoas assistem</h3>
+      ${[['25% do vídeo',q.p25],['metade',q.p50],['75% do vídeo',q.p75],['até o fim',q.p100]].map(([l,v])=>`<div class="qbar"><span>${l}</span><span class="track"><span class="fill" style="width:${Math.min(v,100)}%;display:block"></span></span><span class="pv">${pct(v)}</span></div>`).join('')}
+    </div>
+    <div class="tips"><h3>O que testar na próxima edição</h3><ul>${dicas(c).map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`;
+}
+
+function preencherShows() {
+  const sel = document.getElementById('show');
+  const shows = [...new Set((st.dados.janelas[st.janela]||[]).map(c=>c.show))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  if (!shows.includes(st.show)) st.show = '';
+  sel.innerHTML = '<option value="">Todos os shows</option>' + shows.map(s=>`<option ${s===st.show?'selected':''}>${esc(s)}</option>`).join('');
+}
+
+function sincronizarControles() {
+  document.getElementById('p7').setAttribute('aria-pressed', st.janela==='7');
+  document.getElementById('p30').setAttribute('aria-pressed', st.janela==='30');
+  document.getElementById('sort').value = st.sort;
+  document.getElementById('ativos').checked = st.ativos;
+}
+
+async function carregar() {
+  try {
+    const r = await fetch('data.json?t=' + Date.now(), {cache:'no-store'});
+    st.dados = await r.json();
+    const d = new Date(st.dados.atualizado);
+    document.getElementById('stamp').innerHTML = `<i></i>Atualizado ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+    preencherShows(); render();
+  } catch (e) {
+    document.getElementById('stamp').textContent = 'Não foi possível carregar os dados. Recarregue a página em alguns minutos.';
+  }
+}
+
+document.getElementById('p7').onclick = () => { st.janela='7'; salvar(); sincronizarControles(); preencherShows(); render(); };
+document.getElementById('p30').onclick = () => { st.janela='30'; salvar(); sincronizarControles(); preencherShows(); render(); };
+document.getElementById('show').onchange = e => { st.show = e.target.value; render(); };
+document.getElementById('sort').onchange = e => { st.sort = e.target.value; salvar(); render(); };
+document.getElementById('ativos').onchange = e => { st.ativos = e.target.checked; salvar(); render(); };
+sincronizarControles();
+carregar();
+setInterval(carregar, 10 * 60 * 1000);
+</script>
+</body>
+</html>
